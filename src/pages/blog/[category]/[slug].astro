@@ -1,0 +1,213 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { supabase } from '../../../lib/supabase';
+import { getImageUrl } from '../../../lib/imageUtils';
+import LikeButton from '../../../components/LikeButton.astro';
+
+const { category, slug } = Astro.params;
+
+let post = null;
+let error = null;
+let imageUrl = null;
+
+try {
+  const { data, error: fetchError } = await supabase
+    .from('posts')
+    .select(`
+      *,
+      content_categories (
+        id,
+        name,
+        icon,
+        description
+      )
+    `)
+    .eq('content_category_link', category)
+    .eq('slug', slug)
+    .eq('active', true)
+    .single();
+
+  if (fetchError) throw fetchError;
+  if (!data) throw new Error('Post not found');
+
+  post = data;
+  
+  if (post.storage_path) {
+    imageUrl = getImageUrl(post.storage_path);
+  }
+} catch (err) {
+  console.error('Error fetching post:', err);
+  error = err;
+}
+
+// Format date
+const formattedDate = post?.created_at ? new Date(post.created_at).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}) : '';
+---
+
+<Layout title={post?.title || 'Article Not Found'}>
+  <div class="min-h-screen bg-gray-50">
+    <nav class="bg-white shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <a href="/" class="text-2xl font-bold text-primary">HealthFlexx</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {post ? (
+        <article class="bg-white rounded-xl shadow-lg overflow-hidden">
+          {imageUrl && (
+            <div class="relative h-[400px] overflow-hidden">
+              <img 
+                src={imageUrl}
+                alt={post.title}
+                class="absolute inset-0 w-full h-full object-cover"
+                onError={`this.onerror=null; this.src='https://placehold.co/1200x400?text=Image+Not+Available'; this.className='absolute inset-0 w-full h-full object-cover opacity-75'`}
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
+                <div class="flex items-center gap-4 mb-4">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm">
+                    {post.content_categories?.icon && (
+                      <span class="mr-2">{post.content_categories.icon}</span>
+                    )}
+                    {post.content_categories?.name}
+                  </span>
+                  <time datetime={post.created_at} class="text-sm text-white/80">
+                    {formattedDate}
+                  </time>
+                </div>
+                <h1 class="text-4xl font-bold text-white mb-4">{post.title}</h1>
+              </div>
+            </div>
+          )}
+          
+          <div class="p-8">
+            {!imageUrl && (
+              <div class="mb-8">
+                <div class="flex items-center gap-4 mb-4">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
+                    {post.content_categories?.icon && (
+                      <span class="mr-2">{post.content_categories.icon}</span>
+                    )}
+                    {post.content_categories?.name}
+                  </span>
+                  <time datetime={post.created_at} class="text-sm text-gray-500">
+                    {formattedDate}
+                  </time>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">{post.title}</h1>
+              </div>
+            )}
+
+            <div class="prose prose-lg max-w-none">
+              <div class="markdown-content" set:html={post.content} />
+            </div>
+
+            <div class="mt-8 pt-8 border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <a 
+                  href={`/blog/${category}`}
+                  class="inline-flex items-center text-primary hover:text-primary-dark transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                  </svg>
+                  Back to {post.content_categories?.name || 'Articles'}
+                </a>
+                
+                <LikeButton postId={post.id} likes={post.likes || 0} />
+              </div>
+            </div>
+          </div>
+        </article>
+      ) : (
+        <div class="text-center py-12">
+          <h1 class="text-2xl font-bold text-gray-900 mb-4">Article Not Found</h1>
+          <p class="text-gray-600 mb-8">The article you're looking for doesn't exist or has been removed.</p>
+          <a 
+            href="/"
+            class="inline-flex items-center text-primary hover:text-primary-dark transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Return Home
+          </a>
+        </div>
+      )}
+    </main>
+  </div>
+</Layout>
+
+<style is:global>
+  .markdown-content {
+    line-height: 1.75;
+  }
+  
+  .markdown-content h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .markdown-content h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .markdown-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .markdown-content p {
+    margin-bottom: 1.25rem;
+  }
+
+  .markdown-content ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .markdown-content ol {
+    list-style-type: decimal;
+    margin-left: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .markdown-content li {
+    margin-bottom: 0.5rem;
+  }
+
+  .markdown-content a {
+    color: #78B6BA;
+    text-decoration: underline;
+  }
+
+  .markdown-content a:hover {
+    color: #609295;
+  }
+
+  .markdown-content blockquote {
+    border-left: 4px solid #78B6BA;
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+    font-style: italic;
+    color: #4A5568;
+  }
+</style>

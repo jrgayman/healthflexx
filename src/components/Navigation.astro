@@ -1,0 +1,56 @@
+---
+import { supabase } from '../lib/supabase';
+
+// Fetch only needed fields, explicitly excluding id
+const { data: categories, error } = await supabase
+  .from('content_categories')
+  .select('name, slug, icon')
+  .order('name');
+
+if (error) {
+  console.error('Error fetching categories:', error);
+}
+---
+
+<nav class="bg-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <a href="/" class="text-2xl font-bold text-primary">HealthFlexx</a>
+      </div>
+      <div class="flex items-center">
+        <a 
+          href="/admin"
+          class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors text-sm"
+        >
+          Admin Portal
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
+        {categories?.map(category => (
+          <a
+            key={category.slug}
+            href={`/blog/${category.slug}`}
+            class="group block bg-white rounded-xl p-4 hover:bg-gray-50 transition-colors"
+          >
+            <div class="flex items-center">
+              <span class="text-3xl bg-primary/10 p-3 rounded-xl">
+                {category.icon}
+              </span>
+              <div class="ml-4">
+                <h3 class="text-sm font-semibold text-gray-900 group-hover:text-primary transition-colors">
+                  {category.name}
+                </h3>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</nav>

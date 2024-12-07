@@ -1,0 +1,69 @@
+---
+import { getUser, canAccessUserManagement } from '../lib/auth';
+
+const currentPath = Astro.url.pathname;
+const user = getUser();
+const showUserManagement = user && canAccessUserManagement(user.access_level);
+---
+
+<nav class="bg-gray-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <a href="/" class="text-white font-bold">HealthFlexx</a>
+        </div>
+        <div class="hidden md:block">
+          <div class="ml-10 flex items-baseline space-x-4">
+            <a
+              href="/admin/manage"
+              class={`px-3 py-2 rounded-md text-sm font-medium ${
+                currentPath === '/admin/manage'
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              Content Manager
+            </a>
+            {showUserManagement && (
+              <a
+                href="/admin/users"
+                class={`px-3 py-2 rounded-md text-sm font-medium ${
+                  currentPath === '/admin/users'
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                }`}
+              >
+                User Management
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+      <div class="hidden md:block">
+        <div class="ml-4 flex items-center md:ml-6">
+          {user && (
+            <div class="flex items-center space-x-4">
+              <span class="text-gray-300 text-sm">{user.name}</span>
+              <button
+                id="logoutBtn"
+                class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  import { logout } from '../lib/auth';
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn?.addEventListener('click', () => {
+    logout();
+  });
+</script>

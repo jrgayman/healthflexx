@@ -1,0 +1,98 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  videoUrl: string;
+  duration: string;
+  created_at: string;
+  likes: number;
+  author?: {
+    name: string;
+  };
+}
+
+const { id, title, description, thumbnail, videoUrl, duration, created_at, likes, author } = Astro.props;
+const formattedDate = new Date(created_at).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+---
+
+<article class="bg-card rounded-2xl shadow-card hover:shadow-hover transition-all duration-300 overflow-hidden">
+  <div class="relative">
+    <img 
+      src={thumbnail} 
+      alt={title} 
+      class="w-full h-48 object-cover"
+    />
+    <span class="absolute bottom-2 right-2 bg-black/75 text-white px-2 py-1 rounded text-sm">
+      {duration}
+    </span>
+  </div>
+  <div class="p-6">
+    <time class="text-sm text-gray-500 mb-2 block">{formattedDate}</time>
+    <h3 class="text-xl font-semibold text-secondary hover:text-primary transition-colors mb-2">
+      <a href={videoUrl} target="_blank" rel="noopener noreferrer">{title}</a>
+    </h3>
+    {author && (
+      <p class="text-sm text-gray-600 mb-2">By {author.name}</p>
+    )}
+    <p class="text-gray-600 text-sm line-clamp-2 mb-4">{description}</p>
+    <div class="flex items-center justify-between">
+      <a 
+        href={videoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center text-primary font-medium hover:text-primary-dark transition-colors"
+      >
+        Watch Video
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+        </svg>
+      </a>
+      <button 
+        class="like-button flex items-center space-x-1 text-gray-500 hover:text-primary transition-colors"
+        data-post-id={id}
+        data-likes={likes}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+        </svg>
+        <span>{likes || 0}</span>
+      </button>
+    </div>
+  </div>
+</article>
+
+<script>
+  // Initialize like buttons
+  const likeButtons = document.querySelectorAll('.like-button');
+  
+  likeButtons.forEach(button => {
+    button.addEventListener('click', async () => {
+      const postId = button.dataset.postId;
+      const currentLikes = parseInt(button.dataset.likes || '0');
+      
+      try {
+        const response = await fetch(`/api/likes/${postId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const newLikes = currentLikes + 1;
+          button.dataset.likes = newLikes.toString();
+          button.querySelector('span').textContent = newLikes.toString();
+          button.classList.add('text-primary');
+        }
+      } catch (error) {
+        console.error('Error updating likes:', error);
+      }
+    });
+  });
+</script>

@@ -1,0 +1,92 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navigation from '../components/Navigation.astro';
+import { supabase } from '../lib/supabase';
+import { getImageUrl } from '../lib/imageUtils';
+
+// Fetch featured posts
+const { data: featuredPosts, error } = await supabase
+  .from('posts')
+  .select(`
+    *,
+    content_categories (
+      id,
+      name,
+      icon,
+      description,
+      slug
+    )
+  `)
+  .eq('featured', true)
+  .eq('active', true)
+  .order('created_at', { ascending: false })
+  .limit(6);
+
+if (error) {
+  console.error('Error fetching posts:', error);
+}
+---
+
+<Layout title="HealthFlexx">
+  <Navigation />
+  
+  <main class="min-h-screen bg-white">
+    <div class="bg-gradient-to-r from-primary to-primary-dark text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <h1 class="text-5xl font-bold mb-6">
+          Welcome to HealthFlexx
+        </h1>
+        <p class="text-xl text-white/90 max-w-2xl">
+          Your comprehensive guide to health, wellness, and personal growth. Discover expert insights on nutrition, fitness, and mindful living.
+        </p>
+      </div>
+    </div>
+
+    <section class="py-12 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8">Featured Content</h2>
+        
+        {featuredPosts?.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredPosts.map(post => (
+              <article class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+                {post.storage_path && (
+                  <img 
+                    src={getImageUrl(post.storage_path)}
+                    alt={post.title}
+                    class="w-full h-48 object-cover rounded-t-xl"
+                    onError={`this.onerror=null; this.src='https://placehold.co/600x400?text=Image+Not+Available'; this.className='w-full h-48 object-cover rounded-t-xl opacity-75'`}
+                  />
+                )}
+                <div class="p-6">
+                  <div class="flex items-center gap-2 mb-4">
+                    <span class="text-sm font-medium text-primary bg-primary/10 px-3 py-1 rounded-full">
+                      {post.content_categories?.icon} {post.content_categories?.name}
+                    </span>
+                  </div>
+                  <h3 class="text-xl font-semibold mb-2">
+                    <a href={`/blog/${post.content_categories?.slug}/${post.slug}`} class="hover:text-primary">
+                      {post.title}
+                    </a>
+                  </h3>
+                  <p class="text-gray-600 mb-4 line-clamp-2">{post.excerpt}</p>
+                  <a 
+                    href={`/blog/${post.content_categories?.slug}/${post.slug}`}
+                    class="text-primary hover:text-primary-dark inline-flex items-center"
+                  >
+                    Read More
+                    <svg class="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p class="text-center text-gray-500">No featured content available.</p>
+        )}
+      </div>
+    </section>
+  </main>
+</Layout>

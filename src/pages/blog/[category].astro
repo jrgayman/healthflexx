@@ -1,0 +1,202 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BlogPost from '../../components/BlogPost.astro';
+import VideoPost from '../../components/VideoPost.astro';
+import { supabase } from '../../lib/supabase';
+
+const { category } = Astro.params;
+
+let posts = [];
+let videos = [];
+
+try {
+  // Fetch articles
+  const { data: postsData, error: postsError } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('category', category)
+    .eq('type', 'article')
+    .eq('active', true)
+    .order('created_at', { ascending: false });
+
+  if (!postsError) {
+    posts = postsData || [];
+  }
+
+  // Fetch videos
+  const { data: videosData, error: videosError } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('category', category)
+    .eq('type', 'video')
+    .eq('active', true)
+    .order('created_at', { ascending: false });
+
+  if (!videosError) {
+    videos = videosData || [];
+  }
+} catch (error) {
+  console.error('Error fetching content:', error);
+}
+
+const categoryTitles = {
+  'food-cooking': 'Food & Cooking',
+  'fitness-exercise': 'Fitness & Exercise',
+  'hit': 'Health Imagery Training',
+  'daily-insights': 'Daily HealthFlexx Insights'
+};
+
+const title = categoryTitles[category] || 'Blog';
+---
+
+<Layout title={title}>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-12">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">{title}</h1>
+      <div class="h-1 w-20 bg-primary rounded"></div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="mb-8">
+      <div class="relative max-w-xl">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search content..."
+          class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary"
+        />
+        <svg 
+          class="absolute right-3 top-2.5 h-5 w-5 text-gray-400" 
+          xmlns="http://www.w3.org/2000/svg" 
+          viewBox="0 0 20 20" 
+          fill="currentColor"
+        >
+          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Articles Section -->
+    {posts.length > 0 && (
+      <section class="mb-16">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-2xl font-semibold text-secondary">Latest Articles</h2>
+          <div class="h-px flex-1 bg-gray-200 mx-6"></div>
+        </div>
+        
+        <div id="articlesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {posts.map((post) => (
+            <div class="content-item" data-title={post.title.toLowerCase()} data-content={post.excerpt?.toLowerCase()}>
+              <BlogPost
+                id={post.id}
+                title={post.title}
+                excerpt={post.excerpt}
+                category={post.category}
+                type={post.type}
+                image_id={post.image_id}
+                slug={post.slug}
+                created_at={post.created_at}
+                likes={post.likes}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Videos Section -->
+    {videos.length > 0 && (
+      <section>
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-2xl font-semibold text-secondary">Featured Videos</h2>
+          <div class="h-px flex-1 bg-gray-200 mx-6"></div>
+        </div>
+        
+        <div id="videosGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {videos.map((video) => (
+            <div class="content-item" data-title={video.title.toLowerCase()} data-content={video.excerpt?.toLowerCase()}>
+              <VideoPost
+                id={video.id}
+                title={video.title}
+                description={video.excerpt}
+                thumbnail={video.image_id ? `/api/images/${video.image_id}` : video.image_url}
+                videoUrl={video.video_url}
+                duration={video.duration}
+                created_at={video.created_at}
+                likes={video.likes}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- No Content Message -->
+    {posts.length === 0 && videos.length === 0 && (
+      <div class="text-center py-12">
+        <p class="text-gray-500">No content available in this category yet.</p>
+      </div>
+    )}
+
+    <!-- No Results Message -->
+    <div id="noResults" class="hidden text-center py-8 text-gray-500">
+      No content matches your search.
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Search functionality
+  const searchInput = document.getElementById('searchInput');
+  const contentItems = document.querySelectorAll('.content-item');
+  const noResults = document.getElementById('noResults');
+  
+  searchInput?.addEventListener('input', (e) => {
+    const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
+    let hasResults = false;
+    
+    contentItems.forEach(item => {
+      const title = item.getAttribute('data-title') || '';
+      const content = item.getAttribute('data-content') || '';
+      
+      if (title.includes(searchTerm) || content.includes(searchTerm)) {
+        (item as HTMLElement).style.display = '';
+        hasResults = true;
+      } else {
+        (item as HTMLElement).style.display = 'none';
+      }
+    });
+    
+    if (noResults) {
+      noResults.style.display = hasResults ? 'none' : 'block';
+    }
+  });
+
+  // Initialize like buttons
+  const likeButtons = document.querySelectorAll('.like-button');
+  
+  likeButtons.forEach(button => {
+    button.addEventListener('click', async () => {
+      const postId = button.dataset.postId;
+      const currentLikes = parseInt(button.dataset.likes || '0');
+      
+      try {
+        const response = await fetch(`/api/likes/${postId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const newLikes = currentLikes + 1;
+          button.dataset.likes = newLikes.toString();
+          button.querySelector('span').textContent = newLikes.toString();
+          button.classList.add('text-primary');
+        }
+      } catch (error) {
+        console.error('Error updating likes:', error);
+      }
+    });
+  });
+</script>

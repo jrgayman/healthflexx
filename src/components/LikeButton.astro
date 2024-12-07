@@ -1,0 +1,69 @@
+---
+interface Props {
+  postId: string;
+  likes: number;
+}
+
+const { postId, likes = 0 } = Astro.props;
+---
+
+<button 
+  class="like-button flex items-center gap-2 text-gray-500 hover:text-primary transition-colors"
+  data-post-id={postId}
+  data-likes={likes}
+  aria-label="Like post"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+  </svg>
+  <span>{likes}</span>
+</button>
+
+<script>
+  const buttons = document.querySelectorAll('.like-button');
+  
+  buttons.forEach(button => {
+    let isLiking = false;
+    
+    button.addEventListener('click', async () => {
+      if (isLiking) return;
+      
+      const postId = button.getAttribute('data-post-id');
+      if (!postId) return;
+      
+      isLiking = true;
+      button.classList.add('opacity-50', 'cursor-wait');
+      
+      try {
+        const response = await fetch(`/api/likes/${postId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to like post');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && typeof data.likes === 'number') {
+          const likesSpan = button.querySelector('span');
+          if (likesSpan) {
+            likesSpan.textContent = data.likes.toString();
+          }
+          button.classList.add('text-primary');
+          button.setAttribute('data-likes', data.likes.toString());
+        } else {
+          throw new Error(data.error || 'Failed to update likes');
+        }
+      } catch (error) {
+        console.error('Error liking post:', error);
+      } finally {
+        isLiking = false;
+        button.classList.remove('opacity-50', 'cursor-wait');
+      }
+    });
+  });
+</script>

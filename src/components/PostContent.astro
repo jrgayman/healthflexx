@@ -1,0 +1,100 @@
+---
+interface Props {
+  content: string;
+}
+
+const { content } = Astro.props;
+---
+
+<div class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-600">
+  {content && (
+    <div class="markdown-content" set:html={content} />
+  )}
+</div>
+
+<style is:global>
+  .markdown-content {
+    line-height: 1.75;
+  }
+  
+  .markdown-content h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .markdown-content h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .markdown-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .markdown-content p {
+    margin-bottom: 1.25rem;
+  }
+
+  .markdown-content ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .markdown-content ol {
+    list-style-type: decimal;
+    margin-left: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .markdown-content li {
+    margin-bottom: 0.5rem;
+  }
+
+  .markdown-content a {
+    color: #78B6BA;
+    text-decoration: underline;
+  }
+
+  .markdown-content a:hover {
+    color: #609295;
+  }
+
+  .markdown-content blockquote {
+    border-left: 4px solid #78B6BA;
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+    font-style: italic;
+    color: #4A5568;
+  }
+
+  .markdown-content code {
+    background-color: #F7FAFC;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+  }
+
+  .markdown-content pre {
+    background-color: #2D3748;
+    color: #F7FAFC;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin-bottom: 1.25rem;
+  }
+
+  .markdown-content pre code {
+    background-color: transparent;
+    padding: 0;
+    color: inherit;
+  }
+</style>
