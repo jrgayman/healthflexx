@@ -116,7 +116,7 @@ export default function AdminNav() {
                   onClick={() => setMedicationsOpen(!medicationsOpen)}
                   onBlur={() => setTimeout(() => setMedicationsOpen(false), 200)}
                   className={`px-3 py-2 rounded-md text-sm font-medium inline-flex items-center ${
-                    isActive('/admin/medications') || isActive('/admin/medication-adherence')
+                    isActive('/admin/medications') || isActive('/admin/rpm/MedicationAdherence')
                       ? 'bg-primary text-white'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}

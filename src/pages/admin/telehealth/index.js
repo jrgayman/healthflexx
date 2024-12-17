@@ -1,4 +1,4 @@
-```jsx
+jsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Staff from './Staff';
@@ -12,4 +12,3 @@ export default function TelehealthRoutes() {
     </Routes>
   );
 }
-```

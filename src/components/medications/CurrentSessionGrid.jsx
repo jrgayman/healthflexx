@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { supabase } from '../../lib/supabase';
 import StatusButton from './StatusButton';
-import TimezoneSelector from './TimezoneSelector';
 import StartSessionButton from './StartSessionButton';
 import AddDosageForm from './AddDosageForm';
 import SessionColumnTotals from './SessionColumnTotals';
@@ -19,7 +18,6 @@ export default function CurrentSessionGrid({ patientId }) {
   const [session, setSession] = useState(null);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [timezone, setTimezone] = useState('America/New_York');
   const [isAddingDosage, setIsAddingDosage] = useState(false);
 
   useEffect(() => {
@@ -145,12 +143,6 @@ export default function CurrentSessionGrid({ patientId }) {
           />
         </div>
       </div>
-
-      <TimezoneSelector 
-        value={timezone}
-        onChange={setTimezone}
-        className="mb-6 print:hidden"
-      />
 
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">

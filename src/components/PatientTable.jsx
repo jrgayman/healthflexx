@@ -1,6 +1,15 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 
 export default function PatientTable({ patients }) {
+  if (!patients?.length) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">No patients found.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
@@ -10,8 +19,7 @@ export default function PatientTable({ patients }) {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Provider</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Room</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Medications</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>
@@ -31,9 +39,7 @@ export default function PatientTable({ patients }) {
                     />
                     <div>
                       <div className="text-sm font-medium text-gray-900">{patient.name}</div>
-                      <div className="text-sm text-gray-500">
-                        MRN: {patient.medical_record_number}
-                      </div>
+                      <div className="text-sm text-gray-500">MRN: {patient.medical_record_number}</div>
                     </div>
                   </div>
                 </td>
@@ -48,21 +54,7 @@ export default function PatientTable({ patients }) {
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm text-gray-900">
-                    {patient.rooms ? (
-                      <>
-                        Room {patient.rooms.room_number}
-                        <div className="text-sm text-gray-500">
-                          {patient.rooms.buildings?.name}
-                        </div>
-                      </>
-                    ) : (
-                      'Unassigned'
-                    )}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">
-                    {patient.patient_medications?.length || 0} medications
+                    {patient.companies?.name || 'Unassigned'}
                   </div>
                 </td>
                 <td className="px-6 py-4 text-right">

@@ -1,22 +1,15 @@
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}"
-  ],
+module.exports = {
+  content: ['./src/**/*.{html,js,jsx,ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        primary: {
-          DEFAULT: '#78B6BA',
-          light: '#9DC9CC',
-          dark: '#609295',
-        }
-      }
+        primary: '#78B6BA',
+        'primary-dark': '#609295',
+        'primary-light': '#9DC9CC',
+      },
     },
   },
   plugins: [
     require('@tailwindcss/forms'),
-    require('@tailwindcss/typography')
   ],
 }

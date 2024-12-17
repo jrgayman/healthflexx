@@ -1,4 +1,3 @@
-```javascript
 import { supabase } from '../lib/supabase';
 
 async function setupMedicationAdherence() {
@@ -142,4 +141,3 @@ async function setupMedicationAdherence() {
 setupMedicationAdherence()
   .then(() => process.exit(0))
   .catch(() => process.exit(1));
-```

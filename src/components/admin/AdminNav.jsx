@@ -2,13 +2,18 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function AdminNav() {
-  const [usersOpen, setUsersOpen] = useState(false);
-  const [organizationsOpen, setOrganizationsOpen] = useState(false);
-  const [medicationsOpen, setMedicationsOpen] = useState(false);
-  const [incontinenceOpen, setIncontinenceOpen] = useState(false);
-  const [telehealthOpen, setTelehealthOpen] = useState(false);
-
   const location = useLocation();
+  const [adminsOpen, setAdminsOpen] = useState(false);
+  const [dashboardsOpen, setDashboardsOpen] = useState(false);
+  const [devicesOpen, setDevicesOpen] = useState(false);
+  const [rpmOpen, setRpmOpen] = useState(false);
+
+  const getNavClasses = (paths) => {
+    const isActive = paths.some(path => location.pathname.includes(path));
+    return `px-3 py-2 rounded-md text-sm font-medium inline-flex items-center ${
+      isActive ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
+    }`;
+  };
 
   return (
     <nav className="bg-white shadow-lg">
@@ -16,39 +21,22 @@ export default function AdminNav() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="text-2xl font-bold text-primary">
-              HealthFlexx
+              HealthFlexx Admin
             </Link>
             <div className="hidden md:flex items-center space-x-4 ml-8">
-              <Link
-                to="/admin/content"
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  location.pathname === '/admin/content'
-                    ? 'bg-primary text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                Content
-              </Link>
-
-              {/* Users Dropdown */}
+              {/* Admins Dropdown */}
               <div className="relative">
                 <button
-                  onClick={() => setUsersOpen(!usersOpen)}
-                  onBlur={() => setTimeout(() => setUsersOpen(false), 200)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium inline-flex items-center ${
-                    location.pathname.includes('/admin/users') ||
-                    location.pathname.includes('/admin/patients') ||
-                    location.pathname.includes('/admin/medical-staff')
-                      ? 'bg-primary text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  onClick={() => setAdminsOpen(!adminsOpen)}
+                  onBlur={() => setTimeout(() => setAdminsOpen(false), 200)}
+                  className={getNavClasses(['/admin/users', '/admin/medications', '/admin/companies', '/admin/providers', '/admin/family-contacts', '/admin/apis'])}
                 >
-                  Users
+                  Admins
                   <svg className="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
-                {usersOpen && (
+                {adminsOpen && (
                   <div className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                     <div className="py-1">
                       <Link
@@ -58,13 +46,63 @@ export default function AdminNav() {
                         Users
                       </Link>
                       <Link
-                        to="/admin/patients"
+                        to="/admin/medications"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Medications
+                      </Link>
+                      <Link
+                        to="/admin/companies"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Companies
+                      </Link>
+                      <Link
+                        to="/admin/providers"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Providers
+                      </Link>
+                      <Link
+                        to="/admin/family-contacts"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Family Contacts
+                      </Link>
+                      <Link
+                        to="/admin/apis"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        APIs
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Dashboards Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setDashboardsOpen(!dashboardsOpen)}
+                  onBlur={() => setTimeout(() => setDashboardsOpen(false), 200)}
+                  className={getNavClasses(['/admin/dashboards'])}
+                >
+                  Dashboards
+                  <svg className="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                {dashboardsOpen && (
+                  <div className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                    <div className="py-1">
+                      <Link
+                        to="/admin/dashboards/patients"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Patients
                       </Link>
                       <Link
-                        to="/admin/medical-staff"
+                        to="/admin/dashboards/medical-staff"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Medical Staff
@@ -74,173 +112,100 @@ export default function AdminNav() {
                 )}
               </div>
 
-              {/* Organizations Dropdown */}
+              {/* Devices Dropdown */}
               <div className="relative">
                 <button
-                  onClick={() => setOrganizationsOpen(!organizationsOpen)}
-                  onBlur={() => setTimeout(() => setOrganizationsOpen(false), 200)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium inline-flex items-center ${
-                    location.pathname.includes('/admin/organizations') ||
-                    location.pathname.includes('/admin/providers')
-                      ? 'bg-primary text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  onClick={() => setDevicesOpen(!devicesOpen)}
+                  onBlur={() => setTimeout(() => setDevicesOpen(false), 200)}
+                  className={getNavClasses(['/admin/devices'])}
                 >
-                  Organizations
+                  Devices
                   <svg className="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
-                {organizationsOpen && (
+                {devicesOpen && (
                   <div className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                     <div className="py-1">
                       <Link
-                        to="/admin/organizations"
+                        to="/admin/devices/products"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        Organizations
+                        Products
                       </Link>
                       <Link
-                        to="/admin/providers"
+                        to="/admin/devices/models"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        Providers
+                        Models
+                      </Link>
+                      <Link
+                        to="/admin/devices/categories"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Categories
                       </Link>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Medications Dropdown */}
+              {/* RPM Dropdown */}
               <div className="relative">
                 <button
-                  onClick={() => setMedicationsOpen(!medicationsOpen)}
-                  onBlur={() => setTimeout(() => setMedicationsOpen(false), 200)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium inline-flex items-center ${
-                    location.pathname.includes('/admin/medications') ||
-                    location.pathname.includes('/admin/medication-adherence')
-                      ? 'bg-primary text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  onClick={() => setRpmOpen(!rpmOpen)}
+                  onBlur={() => setTimeout(() => setRpmOpen(false), 200)}
+                  className={getNavClasses(['/admin/rpm'])}
                 >
-                  Medications
+                  RPM
                   <svg className="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
-                {medicationsOpen && (
+                {rpmOpen && (
                   <div className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                     <div className="py-1">
                       <Link
-                        to="/admin/medications"
+                        to="/admin/rpm/vitals"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        Medications
+                        Vitals
                       </Link>
                       <Link
-                        to="/admin/medication-adherence"
+                        to="/admin/rpm/activity"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Activity
+                      </Link>
+                      <Link
+                        to="/admin/rpm/weight"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Weight
+                      </Link>
+                      <Link
+                        to="/admin/rpm/MedicationAdherence"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Medication Adherence
                       </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Incontinence Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setIncontinenceOpen(!incontinenceOpen)}
-                  onBlur={() => setTimeout(() => setIncontinenceOpen(false), 200)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium inline-flex items-center ${
-                    location.pathname.includes('/admin/incontinence') ||
-                    location.pathname.includes('/admin/rfid')
-                      ? 'bg-primary text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  Incontinence
-                  <svg className="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                {incontinenceOpen && (
-                  <div className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                    <div className="py-1">
                       <Link
-                        to="/admin/incontinence"
+                        to="/admin/rpm/alerts"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        Incontinence Manager
-                      </Link>
-                      <Link
-                        to="/admin/rfid"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        RFID Manager
+                        Alerts
                       </Link>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Telehealth Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setTelehealthOpen(!telehealthOpen)}
-                  onBlur={() => setTimeout(() => setTelehealthOpen(false), 200)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium inline-flex items-center ${
-                    location.pathname.includes('/admin/telehealth')
-                      ? 'bg-primary text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  Telehealth
-                  <svg className="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                {telehealthOpen && (
-                  <div className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                    <div className="py-1">
-                      <Link
-                        to="/admin/telehealth/admin"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Admin
-                      </Link>
-                      <Link
-                        to="/admin/telehealth/staff"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Staff
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-
+              {/* Incontinence Link */}
               <Link
-                to="/admin/devices"
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  location.pathname === '/admin/devices'
-                    ? 'bg-primary text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                to="/admin/incontinence"
+                className={getNavClasses(['/admin/incontinence'])}
               >
-                Devices
-              </Link>
-
-              <Link
-                to="/admin/apis"
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  location.pathname === '/admin/apis'
-                    ? 'bg-primary text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                APIs
+                Incontinence
               </Link>
             </div>
           </div>

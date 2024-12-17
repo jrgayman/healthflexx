@@ -5,24 +5,25 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    host: true,
     hmr: {
-      protocol: 'ws',
-      host: 'localhost',
-      clientPort: 3000
+      overlay: false
     }
   },
   build: {
-    sourcemap: true,
     outDir: 'dist',
-    assetsDir: 'assets',
+    sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks: {
           'vendor': ['react', 'react-dom', 'react-router-dom'],
           'charts': ['chart.js', 'react-chartjs-2'],
-          'utils': ['date-fns', 'slugify']
+          'utils': ['date-fns']
         }
       }
     }
+  },
+  define: {
+    'process.env': {}
   }
 });

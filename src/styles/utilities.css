@@ -1,0 +1,42 @@
+@tailwind utilities;
+
+@layer utilities {
+  /* 🔹 Typography Utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .line-clamp-1,
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+  }
+
+  .line-clamp-1 {
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    -webkit-line-clamp: 2;
+  }
+
+  /* 🔹 Layout Utilities */
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .absolute-center {
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+  }
+
+  /* 🔹 Animation Utilities */
+  .animate-fade {
+    animation: fade 0.3s ease-in-out;
+  }
+
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}

@@ -22,18 +22,6 @@ export async function uploadDeviceImage(file) {
       throw new Error('Please upload a valid image file (JPEG, PNG, GIF, or WebP)');
     }
 
-    // Create bucket if it doesn't exist
-    const { error: bucketError } = await supabase.storage.createBucket('device-images', {
-      public: true,
-      allowedMimeTypes: ALLOWED_MIME_TYPES,
-      fileSizeLimit: MAX_FILE_SIZE
-    });
-
-    // Ignore error if bucket already exists
-    if (bucketError && !bucketError.message.includes('already exists')) {
-      throw bucketError;
-    }
-
     // Create unique filename with original extension
     const fileExt = file.name.split('.').pop().toLowerCase();
     const fileName = `${Math.random().toString(36).slice(2)}.${fileExt}`;
